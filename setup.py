@@ -28,6 +28,7 @@ def MetalExtension(name, sources, *args, **kwargs):
         assert osp.splitext(
             src)[1] == '.metal', f'Expect .metal file, but get {src}.'
 
+    kwargs['language'] = 'metal'
     return Extension(name, sources, *args, **kwargs)
 
 
@@ -128,6 +129,20 @@ class BuildMPSExtension(BuildExtension):
         self.compiler.link = darwin_wrap_single_link
         self.compiler.object_filenames = darwin_wrap_object_filenames
         build_ext.build_extensions(self)
+
+    def get_ext_filename(self, ext_name):
+        language = 'cxx'
+        for ext in self.extensions:
+            if ext_name != ext.name:
+                continue
+            language = ext.language
+            break
+
+        if language == 'metal':
+            ext_path = ext_name.split('.')
+            return osp.join(*ext_path) + '.metallib'
+        else:
+            return super().get_ext_filename(ext_name)
 
 
 def get_extensions():
