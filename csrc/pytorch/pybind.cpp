@@ -1,0 +1,8 @@
+#include <torch/extension.h>
+
+using at::Tensor;
+Tensor custom_add(const Tensor &a, const Tensor &b);
+
+PYBIND11_MODULE(TORCH_EXTENSION_NAME, m){
+    m.def("custom_add", &custom_add, "custom add for mps test", py::arg("a"),py::arg("b"));
+}
