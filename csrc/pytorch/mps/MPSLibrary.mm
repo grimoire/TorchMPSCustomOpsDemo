@@ -21,24 +21,56 @@ MPSLibrary* MPSLibraryManager::getLibrary(const std::string& library_url){
     if(_library_map.find(library_url)!=_library_map.end()){
         return _library_map[library_url].get();
     }
-    _library_map.emplace(std::make_pair(library_url, std::make_unique<MPSLibrary>(library_url)));
+    _library_map.emplace(std::make_pair(library_url, std::unique_ptr<MPSLibrary>(MPSLibrary::createFromUrl(library_url))));
     return _library_map[library_url].get();
 }
 
-MPSLibrary::MPSLibrary(const std::string& library_url){
+MPSLibrary* MPSLibraryManager::createLibraryFromSouce(const std::string& name, const std::string& source){
+    NSString* ns_name = [NSString stringWithCString: name.c_str()];
+    if(_library_map.find(name)!=_library_map.end()){
+        NSLog(@"Library %@ already exist.", ns_name);
+        return nullptr;
+    }
 
+    _library_map.emplace(std::make_pair(name, std::unique_ptr<MPSLibrary>(MPSLibrary::createFromSource(source))));
+    return _library_map[name].get();
+}
+
+
+MPSLibrary* MPSLibrary::createFromUrl(const std::string& library_url){
+    MPSLibrary* library = new MPSLibrary();
     @autoreleasepool{
     NSError* error = nil;
 
     // load library and func
     NSString* utl_str = [NSString stringWithCString: library_url.c_str()];
     NSURL* metal_url = [NSURL fileURLWithPath: utl_str];
-    _library = [at::mps::MPSDevice::getInstance()->device() newLibraryWithURL: metal_url error:&error];
-    if(_library == nil){
+    library->_library = [at::mps::MPSDevice::getInstance()->device() newLibraryWithURL: metal_url error:&error];
+    if(library->_library == nil){
         NSLog(@"Failed to find library, error %@.", error);
         exit(1);
     }
     }
+
+    return library;
+}
+
+
+MPSLibrary* MPSLibrary::createFromSource(const std::string& sources){
+    MPSLibrary* library = new MPSLibrary();
+    @autoreleasepool{
+    NSError* error = nil;
+
+    // load library and func
+    NSString* code_str = [NSString stringWithCString: sources.c_str()];
+    library->_library = [at::mps::MPSDevice::getInstance()->device() newLibraryWithSource: code_str options: nil error:&error];
+    if(library->_library == nil){
+        NSLog(@"Failed to find library, error %@.", error);
+        exit(1);
+    }
+    }
+
+    return library;
 }
 
 MPSLibrary::~MPSLibrary(){

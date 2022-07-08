@@ -20,7 +20,8 @@ typedef void* MTLLibrary_t;
 class MPSLibrary{
 public:
     // disable constractor for singleton
-    MPSLibrary(const std::string& library_url);
+    static MPSLibrary* createFromUrl(const std::string& library_url);
+    static MPSLibrary* createFromSource(const std::string& source);
     ~MPSLibrary();
 
     MTLLibrary_t library(){
@@ -44,6 +45,8 @@ public:
     static MPSLibraryManager* getInstance();
 
     MPSLibrary* getLibrary(const std::string& library_url);
+
+    MPSLibrary* createLibraryFromSouce(const std::string& name, const std::string& sources);
 
     ~MPSLibraryManager();
 private:
