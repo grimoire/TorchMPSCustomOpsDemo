@@ -44,6 +44,8 @@ public:
 
     static MPSLibraryManager* getInstance();
 
+    bool hasLibrary(const std::string& name);
+
     MPSLibrary* getLibrary(const std::string& library_url);
 
     MPSLibrary* createLibraryFromSouce(const std::string& name, const std::string& sources);

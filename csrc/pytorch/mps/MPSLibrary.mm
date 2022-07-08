@@ -17,6 +17,10 @@ MPSLibraryManager::~MPSLibraryManager(){}
 MPSLibraryManager::MPSLibraryManager() {}
 
 
+bool MPSLibraryManager::hasLibrary(const std::string& name){
+    return _library_map.find(name)!=_library_map.end();
+}
+
 MPSLibrary* MPSLibraryManager::getLibrary(const std::string& library_url){
     if(_library_map.find(library_url)!=_library_map.end()){
         return _library_map[library_url].get();

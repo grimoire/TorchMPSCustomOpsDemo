@@ -23,7 +23,11 @@ void CustomAdd2Impl(Tensor a, Tensor b, Tensor c, size_t num_elements){
     // get stream
     auto stream = at::mps::getCurrentMPSStream();
     auto library_manager = MPSLibraryManager::getInstance();
-    auto library = library_manager->createLibraryFromSouce("from_source", kSourceCode);
+    MPSLibrary* library;
+    if(library_manager->hasLibrary("from_source"))
+        library = library_manager->getLibrary("from_source");
+    else
+        library = library_manager->createLibraryFromSouce("from_source", kSourceCode);
     auto func_pso = library->getComputePipelineState("custom_add_impl");
     
     // create command buffer and encoder
