@@ -1,0 +1,52 @@
+#pragma once
+
+#include <unordered_map>
+#include <string>
+
+#ifdef __OBJC__
+#include <Foundation/Foundation.h>
+#include <Metal/Metal.h>
+#include <MetalPerformanceShaders/MetalPerformanceShaders.h>
+
+typedef id<MTLComputePipelineState> MTLComputePipelineState_t;
+typedef id<MTLLibrary> MTLLibrary_t;
+#else
+typedef void* MTLComputePipelineState;
+typedef void* MTLComputePipelineState_t;
+typedef void* MTLLibrary;
+typedef void* MTLLibrary_t;
+#endif
+
+class MPSLibrary{
+public:
+    // disable constractor for singleton
+    MPSLibrary(const std::string& library_url);
+    ~MPSLibrary();
+
+    MTLLibrary_t library(){
+        return _library;
+    }
+
+    MTLComputePipelineState_t getComputePipelineState(const std::string& function_name);
+private:
+    MTLLibrary_t _library;
+    std::unordered_map<std::string, MTLComputePipelineState_t> _pso_map;
+};
+
+class MPSLibraryManager{
+public:
+    // disable constractor for singleton
+    MPSLibraryManager(const MPSLibraryManager&)=delete;
+    MPSLibraryManager& operator=(const MPSLibraryManager&)=delete;
+    MPSLibraryManager(MPSLibraryManager &&)=delete;
+    MPSLibraryManager& operator=(MPSLibraryManager &&)=delete;
+
+    static MPSLibraryManager* getInstance();
+
+    MPSLibrary* getLibrary(const std::string& library_url);
+
+    ~MPSLibraryManager();
+private:
+    MPSLibraryManager();
+    std::unordered_map<std::string, std::unique_ptr<MPSLibrary>> _library_map;
+};
