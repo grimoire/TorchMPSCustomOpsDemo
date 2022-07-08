@@ -3,6 +3,9 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# metal extensions
+*.metallib
+
 # C extensions
 *.so
 
@@ -119,4 +122,3 @@ data/
 work_dir/
 
 src/
-
